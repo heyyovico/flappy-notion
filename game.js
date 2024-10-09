@@ -2,18 +2,40 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
 const gameOverDisplay = document.getElementById("gameOver");
+const messageDisplay = document.createElement('div'); // Create a div to display messages
+document.body.appendChild(messageDisplay); // Append it to the body
+messageDisplay.style.fontSize = '24px'; // Set font size for the messages
+messageDisplay.style.position = 'absolute'; // Position it absolutely
+messageDisplay.style.top = '50px'; // Position it below the canvas
+messageDisplay.style.left = '50%'; // Center it horizontally
+messageDisplay.style.transform = 'translateX(-50%)'; // Center it correctly
+messageDisplay.style.display = 'none'; // Hide it by default
 
 let snake = [{ x: 10, y: 10 }];
 let direction = { x: 0, y: 0 };
 let food = { x: 15, y: 15 };
 let score = 0;
 let gameOver = false;
+let gameStarted = false; // Track if the game has started
 
 // Load images
 const bullImage = new Image();
 bullImage.src = 'bull.png'; // Ensure this file exists in your repo
 const bearImage = new Image();
 bearImage.src = 'bear.png'; // Ensure this file exists in your repo
+
+// Array of random messages
+const messages = [
+    "PUMP IT",
+    "YOLO",
+    "DEGEN MODE",
+    "APE",
+    "ALL IN",
+    "STONKS",
+    "HODL",
+    "STOP JEETING MFER",
+    "PUNISH THE PAPERHANDS"
+];
 
 // Draw the bull (snake)
 function drawBull(x, y) {
@@ -27,7 +49,7 @@ function drawBear(x, y) {
 
 // Main draw function
 function draw() {
-    if (gameOver) return;
+    if (gameOver || !gameStarted) return; // Stop drawing if game is over or hasn't started
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -47,6 +69,7 @@ function draw() {
     if (head.x === food.x && head.y === food.y) {
         score++;
         placeFood();
+        showRandomMessage(); // Show a random message when eating a bear
     } else {
         snake.pop();
     }
@@ -78,7 +101,17 @@ function resetGame() {
     score = 0;
     gameOver = false;
     gameOverDisplay.style.display = "none"; // Hide game over message
+    messageDisplay.style.display = 'none'; // Hide random message
     placeFood();
+}
+
+function showRandomMessage() {
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    messageDisplay.innerText = messages[randomIndex]; // Set random message
+    messageDisplay.style.display = 'block'; // Show the message
+    setTimeout(() => {
+        messageDisplay.style.display = 'none'; // Hide after 2 seconds
+    }, 2000);
 }
 
 function changeDirection(event) {
@@ -101,6 +134,14 @@ function changeDirection(event) {
         case "ArrowRight":
             if (direction.x === 0) {
                 direction = { x: 1, y: 0 };
+            }
+            break;
+        case " ":
+            if (!gameStarted) {
+                gameStarted = true; // Set game as started
+                resetGame(); // Reset game state
+                gameOverDisplay.style.display = "none"; // Hide game over message
+                scoreDisplay.innerText = `Score: ${score}`; // Reset score display
             }
             break;
     }
