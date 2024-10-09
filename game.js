@@ -1,13 +1,92 @@
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let snake = [{ x: 5, y: 5 }];
+let food = {};
+let direction = { x: 0, y: 0 };
+let score = 0;
+let gameOver = false;
+const scoreDisplay = document.getElementById("score");
+const gameOverDisplay = document.getElementById("gameOver");
+let message = "";
+
+document.addEventListener("keydown", (event) => {
+    if (event.code === "Space") {
+        if (gameOver) {
+            restartGame();
+        } else {
+            startGame();
+        }
+    } else if (!gameOver) {
+        switch (event.code) {
+            case "ArrowUp":
+                direction = { x: 0, y: -1 };
+                break;
+            case "ArrowDown":
+                direction = { x: 0, y: 1 };
+                break;
+            case "ArrowLeft":
+                direction = { x: -1, y: 0 };
+                break;
+            case "ArrowRight":
+                direction = { x: 1, y: 0 };
+                break;
+        }
+    }
+});
+
+function startGame() {
+    score = 0;
+    snake = [{ x: 5, y: 5 }];
+    direction = { x: 0, y: 0 };
+    placeFood();
+    gameOver = false;
+    gameOverDisplay.style.display = "none";
+    gameLoop();
+}
+
+function restartGame() {
+    startGame();
+}
+
+function gameLoop() {
+    if (gameOver) return;
+
+    draw();
+    setTimeout(gameLoop, 100); // Adjust game speed here
+}
+
+function placeFood() {
+    food = {
+        x: Math.floor(Math.random() * (canvas.width / 20)),
+        y: Math.floor(Math.random() * (canvas.height / 20))
+    };
+}
+
+function drawBull(x, y) {
+    ctx.fillStyle = "brown"; // Change this to an actual bull image if desired
+    ctx.fillRect(x * 20, y * 20, 20, 20);
+}
+
+function drawBear(x, y) {
+    ctx.fillStyle = "red"; // Change this to an actual bear image if desired
+    ctx.fillRect(x * 20, y * 20, 20, 20);
+}
+
+function collision(head) {
+    return snake.some(segment => segment.x === head.x && segment.y === head.y);
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the canvas border
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 5; // Set the line width for the border
+    ctx.lineWidth = 5;
     ctx.strokeRect(0, 0, canvas.width, canvas.height); // Draw the canvas border
 
     // Draw the snake (bulls)
-    snake.forEach((segment) => {
+    snake.forEach(segment => {
         drawBull(segment.x, segment.y);
     });
 
@@ -38,9 +117,50 @@ function draw() {
 
     // Update score display
     scoreDisplay.innerText = `Score: ${score}`;
-
-    // Draw the message if it exists
-    if (message) {
-        drawMessage(head.x * 20, head.y * 20, message);
-    }
 }
+
+// Chat bubble settings
+const bubbleOffset = { x: 0, y: -25 };
+function showRandomMessage(x, y) {
+    const messages = [
+        "PUMP IT",
+        "YOLO",
+        "DEGEN MODE",
+        "APE",
+        "ALL IN",
+        "STONKS",
+        "HODL",
+        "STOP JEETING MFER",
+        "PUNISH THE PAPERHANDS"
+    ];
+    message = messages[Math.floor(Math.random() * messages.length)];
+    drawMessage(x * 20 + bubbleOffset.x, y * 20 + bubbleOffset.y, message);
+}
+
+function drawMessage(x, y, text) {
+    const padding = 5;
+    const borderRadius = 10;
+
+    // Calculate text dimensions
+    const textWidth = ctx.measureText(text).width;
+    const textHeight = 20; // Approximate height of the text
+
+    // Draw chat bubble background
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.moveTo(x + borderRadius, y);
+    ctx.lineTo(x + textWidth + padding + borderRadius, y);
+    ctx.quadraticCurveTo(x + textWidth + padding + borderRadius, y + borderRadius, x + textWidth + padding + borderRadius, y + textHeight + borderRadius);
+    ctx.lineTo(x + borderRadius, y + textHeight + borderRadius);
+    ctx.quadraticCurveTo(x, y + textHeight + borderRadius, x, y + textHeight);
+    ctx.lineTo(x, y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw message text
+    ctx.fillStyle = "white"; // Message text color
+    ctx.fillText(text, x + padding, y + textHeight - 5);
+}
+
+// Initialize the game
+startGame();
