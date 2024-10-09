@@ -3,20 +3,3 @@ canvas {
     display: block;
     margin: 0 auto;
 }
-.message {
-    display: none;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    font-size: 20px;
-}
-#score {
-    text-align: center;
-    font-size: 24px;
-    margin-top: 10px;
-}
