@@ -4,29 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulls Eat Bears</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #score {
-            font-size: 24px;
-        }
-        #gameOver {
-            display: none;
-            font-size: 48px;
-            color: red;
-        }
-        canvas {
-            border: 5px solid black; /* Ensure there is a visible border around the canvas */
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <div id="score">Score: 0</div>
-    <div id="gameOver">YOU'RE LIQUIDATED. TRY AGAIN!</div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="gameOver" style="display: none;">YOU'RE LIQUIDATED. TRY AGAIN!</div>
+    </div>
     <script src="game.js"></script>
 </body>
 </html>
