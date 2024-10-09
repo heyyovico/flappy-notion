@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Bull Game</title>
+    <title>Simple Snake Game</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -25,17 +25,15 @@
 <body>
     <div id="score">Score: 0</div>
     <div id="gameOver">YOU'RE LIQUIDATED. TRY AGAIN!</div>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
     
     <script>
         const canvas = document.getElementById("gameCanvas");
-        canvas.width = 400; // Set canvas width
-        canvas.height = 400; // Set canvas height
         const ctx = canvas.getContext("2d");
 
         let snake = [{ x: 5, y: 5 }];
         let food = {};
-        let direction = { x: 0, y: 0 }; // Start with no movement
+        let direction = { x: 1, y: 0 }; // Start moving to the right
         let score = 0;
         let gameOver = false;
 
