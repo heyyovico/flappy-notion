@@ -5,7 +5,7 @@ const ctx = canvas.getContext("2d");
 
 let snake = [{ x: 5, y: 5 }];
 let food = {};
-let direction = { x: 1, y: 0 }; // Start moving to the right
+let direction = { x: 0, y: 0 }; // Start with no movement
 let score = 0;
 let gameOver = false;
 const scoreDisplay = document.getElementById("score");
@@ -29,16 +29,16 @@ document.addEventListener("keydown", (event) => {
     } else if (!gameOver) {
         switch (event.code) {
             case "ArrowUp":
-                direction = { x: 0, y: -1 };
+                if (direction.y === 0) direction = { x: 0, y: -1 }; // Prevent reversing
                 break;
             case "ArrowDown":
-                direction = { x: 0, y: 1 };
+                if (direction.y === 0) direction = { x: 0, y: 1 }; // Prevent reversing
                 break;
             case "ArrowLeft":
-                direction = { x: -1, y: 0 };
+                if (direction.x === 0) direction = { x: -1, y: 0 }; // Prevent reversing
                 break;
             case "ArrowRight":
-                direction = { x: 1, y: 0 };
+                if (direction.x === 0) direction = { x: 1, y: 0 }; // Prevent reversing
                 break;
         }
     }
@@ -51,7 +51,7 @@ function startGame() {
     placeFood();
     gameOver = false;
     gameOverDisplay.style.display = "none";
-    gameLoop();
+    gameLoop(); // Start the game loop
 }
 
 function restartGame() {
