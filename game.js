@@ -1,9 +1,11 @@
 const canvas = document.getElementById("gameCanvas");
+canvas.width = 400; // Set canvas width
+canvas.height = 400; // Set canvas height
 const ctx = canvas.getContext("2d");
 
 let snake = [{ x: 5, y: 5 }];
 let food = {};
-let direction = { x: 0, y: 0 };
+let direction = { x: 1, y: 0 }; // Start moving to the right
 let score = 0;
 let gameOver = false;
 const scoreDisplay = document.getElementById("score");
@@ -45,7 +47,7 @@ document.addEventListener("keydown", (event) => {
 function startGame() {
     score = 0;
     snake = [{ x: 5, y: 5 }];
-    direction = { x: 0, y: 0 };
+    direction = { x: 1, y: 0 }; // Start moving to the right
     placeFood();
     gameOver = false;
     gameOverDisplay.style.display = "none";
