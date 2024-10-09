@@ -9,23 +9,20 @@ let food = { x: 15, y: 15 };
 let score = 0;
 let gameOver = false;
 
-// Draw the bull
+// Load images
+const bullImage = new Image();
+bullImage.src = 'bull.png'; // Ensure this file exists in your repo
+const bearImage = new Image();
+bearImage.src = 'bear.png'; // Ensure this file exists in your repo
+
+// Draw the bull (snake)
 function drawBull(x, y) {
-    ctx.fillStyle = "#ffcc00"; // Bull color
-    ctx.fillRect(x * 20, y * 20, 18, 18);
-    ctx.fillStyle = "#000"; // Bull eyes
-    ctx.beginPath();
-    ctx.arc(x * 20 + 5, y * 20 + 5, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(x * 20 + 15, y * 20 + 5, 3, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.drawImage(bullImage, x * 20, y * 20, 20, 20);
 }
 
-// Draw the bear
+// Draw the bear (food)
 function drawBear(x, y) {
-    ctx.fillStyle = "#ff0000"; // Bear color
-    ctx.fillRect(x * 20, y * 20, 18, 18);
+    ctx.drawImage(bearImage, x * 20, y * 20, 20, 20);
 }
 
 // Main draw function
