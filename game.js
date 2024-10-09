@@ -49,7 +49,7 @@ function drawBear(x, y) {
 
 // Main draw function
 function draw() {
-    if (gameOver || !gameStarted) return; // Stop drawing if game is over or hasn't started
+    if (gameOver) return; // Stop drawing if game is over
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -103,6 +103,7 @@ function resetGame() {
     gameOverDisplay.style.display = "none"; // Hide game over message
     messageDisplay.style.display = 'none'; // Hide random message
     placeFood();
+    scoreDisplay.innerText = `Score: ${score}`; // Reset score display
 }
 
 function showRandomMessage() {
@@ -140,8 +141,8 @@ function changeDirection(event) {
             if (!gameStarted) {
                 gameStarted = true; // Set game as started
                 resetGame(); // Reset game state
-                gameOverDisplay.style.display = "none"; // Hide game over message
-                scoreDisplay.innerText = `Score: ${score}`; // Reset score display
+            } else if (gameOver) {
+                resetGame(); // Reset game if already over
             }
             break;
     }
