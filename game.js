@@ -2,14 +2,6 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
 const gameOverDisplay = document.getElementById("gameOver");
-const messageDisplay = document.createElement('div'); // Create a div to display messages
-document.body.appendChild(messageDisplay); // Append it to the body
-messageDisplay.style.fontSize = '24px'; // Set font size for the messages
-messageDisplay.style.position = 'absolute'; // Position it absolutely
-messageDisplay.style.top = '50px'; // Position it below the canvas
-messageDisplay.style.left = '50%'; // Center it horizontally
-messageDisplay.style.transform = 'translateX(-50%)'; // Center it correctly
-messageDisplay.style.display = 'none'; // Hide it by default
 
 let snake = [{ x: 10, y: 10 }];
 let direction = { x: 0, y: 0 };
@@ -17,6 +9,8 @@ let food = { x: 15, y: 15 };
 let score = 0;
 let gameOver = false;
 let gameStarted = false; // Track if the game has started
+let message = ""; // Variable to hold the current message
+let messageTimeout; // Timeout variable for hiding message
 
 // Load images
 const bullImage = new Image();
@@ -47,11 +41,21 @@ function drawBear(x, y) {
     ctx.drawImage(bearImage, x * 20, y * 20, 20, 20);
 }
 
+// Draw the message bubble
+function drawMessage(x, y, message) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillRect(x, y - 30, ctx.measureText(message).width + 10, 25); // Draw the bubble
+    ctx.fillStyle = 'black';
+    ctx.fillText(message, x + 5, y - 10); // Draw the text inside the bubble
+}
+
 // Main draw function
 function draw() {
     if (gameOver) return; // Stop drawing if game is over
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'black'; // Add a border to the canvas
+    ctx.strokeRect(0, 0, canvas.width, canvas.height); // Draw the canvas border
 
     // Draw the snake (bulls)
     snake.forEach((segment) => {
@@ -69,7 +73,7 @@ function draw() {
     if (head.x === food.x && head.y === food.y) {
         score++;
         placeFood();
-        showRandomMessage(); // Show a random message when eating a bear
+        showRandomMessage(head.x, head.y); // Show a random message when eating a bear
     } else {
         snake.pop();
     }
@@ -77,6 +81,7 @@ function draw() {
     // Check for game over
     if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 || collision(head)) {
         gameOver = true;
+        gameOverDisplay.innerText = "YOU'RE LIQUIDATED. TRY AGAIN!"; // Update game over message
         gameOverDisplay.style.display = "block"; // Show game over message
         scoreDisplay.innerText = `Score: ${score}`; // Display the score
         return;
@@ -84,6 +89,11 @@ function draw() {
 
     // Update score display
     scoreDisplay.innerText = `Score: ${score}`;
+
+    // Draw the message if it exists
+    if (message) {
+        drawMessage(head.x * 20, head.y * 20, message); // Draw message bubble following the bull
+    }
 }
 
 function placeFood() {
@@ -100,18 +110,19 @@ function resetGame() {
     direction = { x: 0, y: 0 };
     score = 0;
     gameOver = false;
+    gameStarted = false; // Reset game started flag
     gameOverDisplay.style.display = "none"; // Hide game over message
-    messageDisplay.style.display = 'none'; // Hide random message
+    message = ""; // Reset message
+    clearTimeout(messageTimeout); // Clear any existing timeout
     placeFood();
     scoreDisplay.innerText = `Score: ${score}`; // Reset score display
 }
 
-function showRandomMessage() {
+function showRandomMessage(x, y) {
     const randomIndex = Math.floor(Math.random() * messages.length);
-    messageDisplay.innerText = messages[randomIndex]; // Set random message
-    messageDisplay.style.display = 'block'; // Show the message
-    setTimeout(() => {
-        messageDisplay.style.display = 'none'; // Hide after 2 seconds
+    message = messages[randomIndex]; // Set random message
+    messageTimeout = setTimeout(() => {
+        message = ""; // Clear message after 2 seconds
     }, 2000);
 }
 
