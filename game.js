@@ -1,96 +1,84 @@
-const canvas = document.getElementById('flappyBirdCanvas');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-// Load images
-const bird = new Image();
-bird.src = 'https://i.imgur.com/OjTDsM2.png'; // Bird sprite
-
-const bg = new Image();
-bg.src = 'https://i.imgur.com/oDVzh93.png'; // Background
-
-const fg = new Image();
-fg.src = 'https://i.imgur.com/AqC7rUN.png'; // Foreground
-
-const pipeNorth = new Image();
-pipeNorth.src = 'https://i.imgur.com/ZlaDyvJ.png'; // North pipe
-
-const pipeSouth = new Image();
-pipeSouth.src = 'https://i.imgur.com/FlhhTLq.png'; // South pipe
-
-// Game variables
-const gap = 85;
-let constant;
-
-let bX = 10;
-let bY = 150;
-let gravity = 1.5;
+let snake = [{ x: 10, y: 10 }];
+let direction = { x: 0, y: 0 };
+let food = { x: 15, y: 15 };
 let score = 0;
 
-// Audio files
-const fly = new Audio();
-const scor = new Audio();
-fly.src = 'https://www.soundjay.com/button/beep-07.wav';
-scor.src = 'https://www.soundjay.com/button/beep-06.wav';
-
-// Pipe coordinates
-let pipes = [];
-
-pipes[0] = {
-    x: canvas.width,
-    y: 0
-};
-
-// User presses key
-document.addEventListener('keydown', moveUp);
-
-function moveUp() {
-    bY -= 25;
-    fly.play();
-}
-
-// Draw images and pipes
 function draw() {
-    ctx.drawImage(bg, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < pipes.length; i++) {
-        constant = pipeNorth.height + gap;
-        ctx.drawImage(pipeNorth, pipes[i].x, pipes[i].y);
-        ctx.drawImage(pipeSouth, pipes[i].x, pipes[i].y + constant);
+    // Draw the snake
+    snake.forEach((segment) => {
+        ctx.fillStyle = "#008000";
+        ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18);
+    });
 
-        pipes[i].x--;
+    // Draw the food
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
 
-        if (pipes[i].x == 125) {
-            pipes.push({
-                x: canvas.width,
-                y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height
-            });
-        }
+    // Move the snake
+    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    snake.unshift(head);
 
-        // Detect collision
-        if (
-            (bX + bird.width >= pipes[i].x && bX <= pipes[i].x + pipeNorth.width &&
-                (bY <= pipes[i].y + pipeNorth.height || bY + bird.height >= pipes[i].y + constant)) ||
-            bY + bird.height >= canvas.height - fg.height
-        ) {
-            location.reload(); // Reload the page
-        }
-
-        if (pipes[i].x == 5) {
-            score++;
-            scor.play();
-        }
+    // Check if snake eats food
+    if (head.x === food.x && head.y === food.y) {
+        score++;
+        placeFood();
+    } else {
+        snake.pop();
     }
 
-    ctx.drawImage(fg, 0, canvas.height - fg.height);
-    ctx.drawImage(bird, bX, bY);
-
-    bY += gravity;
-
-    ctx.fillStyle = '#000';
-    ctx.font = '20px Verdana';
-    ctx.fillText('Score: ' + score, 10, canvas.height - 20);
-
-    requestAnimationFrame(draw);
+    // Check for game over
+    if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 || collision(head)) {
+        alert("Game Over! Your score: " + score);
+        resetGame();
+    }
 }
 
-draw();
+function placeFood() {
+    food.x = Math.floor(Math.random() * (canvas.width / 20));
+    food.y = Math.floor(Math.random() * (canvas.height / 20));
+}
+
+function collision(head) {
+    return snake.slice(1).some((segment) => segment.x === head.x && segment.y === head.y);
+}
+
+function resetGame() {
+    snake = [{ x: 10, y: 10 }];
+    direction = { x: 0, y: 0 };
+    score = 0;
+    placeFood();
+}
+
+function changeDirection(event) {
+    switch (event.key) {
+        case "ArrowUp":
+            if (direction.y === 0) {
+                direction = { x: 0, y: -1 };
+            }
+            break;
+        case "ArrowDown":
+            if (direction.y === 0) {
+                direction = { x: 0, y: 1 };
+            }
+            break;
+        case "ArrowLeft":
+            if (direction.x === 0) {
+                direction = { x: -1, y: 0 };
+            }
+            break;
+        case "ArrowRight":
+            if (direction.x === 0) {
+                direction = { x: 1, y: 0 };
+            }
+            break;
+    }
+}
+
+document.addEventListener("keydown", changeDirection);
+
+setInterval(draw, 100);
