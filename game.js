@@ -12,6 +12,11 @@ let message = "";
 let messagePosition = { x: 0, y: 0 };
 let bubbleTimer = null;
 
+const bullImage = new Image();
+const bearImage = new Image();
+bullImage.src = 'bull.png'; // Path to the bull image
+bearImage.src = 'bear.png'; // Path to the bear image
+
 document.addEventListener("keydown", (event) => {
     if (event.code === "Space") {
         if (gameOver) {
@@ -68,13 +73,11 @@ function placeFood() {
 }
 
 function drawBull(x, y) {
-    ctx.fillStyle = "brown";
-    ctx.fillRect(x * 20, y * 20, 20, 20);
+    ctx.drawImage(bullImage, x * 20, y * 20, 20, 20);
 }
 
 function drawBear(x, y) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(x * 20, y * 20, 20, 20);
+    ctx.drawImage(bearImage, x * 20, y * 20, 20, 20);
 }
 
 function collision(head) {
