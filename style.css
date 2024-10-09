@@ -14,3 +14,15 @@ canvas {
     border: 2px solid #333;
     background-color: #fff;
 }
+
+#score {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+#gameOver {
+    font-size: 48px;
+    color: red;
+    font-weight: bold;
+    display: none; /* Hidden by default */
+}
