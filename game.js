@@ -9,6 +9,7 @@ let gameOver = false;
 const scoreDisplay = document.getElementById("score");
 const gameOverDisplay = document.getElementById("gameOver");
 let message = "";
+let messagePosition = { x: 0, y: 0 };
 
 document.addEventListener("keydown", (event) => {
     if (event.code === "Space") {
@@ -20,16 +21,16 @@ document.addEventListener("keydown", (event) => {
     } else if (!gameOver) {
         switch (event.code) {
             case "ArrowUp":
-                direction = { x: 0, y: -1 };
+                if (direction.y === 0) direction = { x: 0, y: -1 };
                 break;
             case "ArrowDown":
-                direction = { x: 0, y: 1 };
+                if (direction.y === 0) direction = { x: 0, y: 1 };
                 break;
             case "ArrowLeft":
-                direction = { x: -1, y: 0 };
+                if (direction.x === 0) direction = { x: -1, y: 0 };
                 break;
             case "ArrowRight":
-                direction = { x: 1, y: 0 };
+                if (direction.x === 0) direction = { x: 1, y: 0 };
                 break;
         }
     }
@@ -42,6 +43,8 @@ function startGame() {
     placeFood();
     gameOver = false;
     gameOverDisplay.style.display = "none";
+    message = ""; // Reset message
+    messagePosition = { x: 0, y: 0 }; // Reset message position
     gameLoop();
 }
 
@@ -117,6 +120,11 @@ function draw() {
 
     // Update score display
     scoreDisplay.innerText = `Score: ${score}`;
+
+    // Draw the message if it exists
+    if (message) {
+        drawMessage(head.x, head.y, message);
+    }
 }
 
 // Chat bubble settings
@@ -134,7 +142,7 @@ function showRandomMessage(x, y) {
         "PUNISH THE PAPERHANDS"
     ];
     message = messages[Math.floor(Math.random() * messages.length)];
-    drawMessage(x * 20 + bubbleOffset.x, y * 20 + bubbleOffset.y, message);
+    messagePosition = { x: x, y: y }; // Set message position to the bull's position
 }
 
 function drawMessage(x, y, text) {
@@ -148,18 +156,18 @@ function drawMessage(x, y, text) {
     // Draw chat bubble background
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.moveTo(x + borderRadius, y);
-    ctx.lineTo(x + textWidth + padding + borderRadius, y);
-    ctx.quadraticCurveTo(x + textWidth + padding + borderRadius, y + borderRadius, x + textWidth + padding + borderRadius, y + textHeight + borderRadius);
-    ctx.lineTo(x + borderRadius, y + textHeight + borderRadius);
-    ctx.quadraticCurveTo(x, y + textHeight + borderRadius, x, y + textHeight);
-    ctx.lineTo(x, y);
+    ctx.moveTo((x + bubbleOffset.x) * 20 + borderRadius, (y + bubbleOffset.y) * 20);
+    ctx.lineTo((x + bubbleOffset.x) * 20 + textWidth + padding + borderRadius, (y + bubbleOffset.y) * 20);
+    ctx.quadraticCurveTo((x + bubbleOffset.x) * 20 + textWidth + padding + borderRadius, (y + bubbleOffset.y) * 20 + borderRadius, (x + bubbleOffset.x) * 20 + textWidth + padding + borderRadius, (y + bubbleOffset.y) * 20 + textHeight + borderRadius);
+    ctx.lineTo((x + bubbleOffset.x) * 20 + borderRadius, (y + bubbleOffset.y) * 20 + textHeight + borderRadius);
+    ctx.quadraticCurveTo((x + bubbleOffset.x) * 20, (y + bubbleOffset.y) * 20 + textHeight + borderRadius, (x + bubbleOffset.x) * 20, (y + bubbleOffset.y) * 20 + textHeight);
+    ctx.lineTo((x + bubbleOffset.x) * 20, (y + bubbleOffset.y) * 20);
     ctx.closePath();
     ctx.fill();
 
     // Draw message text
     ctx.fillStyle = "white"; // Message text color
-    ctx.fillText(text, x + padding, y + textHeight - 5);
+    ctx.fillText(text, (x + bubbleOffset.x) * 20 + padding, (y + bubbleOffset.y) * 20 + textHeight - 5);
 }
 
 // Initialize the game
