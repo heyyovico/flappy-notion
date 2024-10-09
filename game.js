@@ -1,85 +1,53 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const scoreDisplay = document.getElementById("score");
+const gameOverDisplay = document.getElementById("gameOver");
+const messageDisplay = document.createElement('div');
+document.body.appendChild(messageDisplay);
+messageDisplay.style.fontSize = '24px';
+messageDisplay.style.position = 'absolute';
+messageDisplay.style.top = '50px';
+messageDisplay.style.left = '50%';
+messageDisplay.style.transform = 'translateX(-50%)';
+messageDisplay.style.display = 'none';
 
-let snake = [{ x: 5, y: 5 }];
-let food = {};
-let direction = { x: 1, y: 0 }; // Start moving to the right
+let snake = [{ x: 10, y: 10 }];
+let direction = { x: 0, y: 0 };
+let food = { x: 15, y: 15 };
+let score = 0;
 let gameOver = false;
 
+// Load images
 const bullImage = new Image();
-bullImage.src = 'bull.png'; // Ensure the path is correct
-
+bullImage.src = 'bull.png'; // Ensure this file exists in your repo
 const bearImage = new Image();
-bearImage.src = 'bear.png'; // Ensure the path is correct
+bearImage.src = 'bear.png'; // Ensure this file exists in your repo
 
-document.addEventListener("keydown", (event) => {
-    if (event.code === "Space") {
-        if (gameOver) {
-            restartGame();
-        } else {
-            startGame();
-        }
-    } else if (!gameOver) {
-        switch (event.code) {
-            case "ArrowUp":
-                if (direction.y === 0) direction = { x: 0, y: -1 }; // Prevent reversing
-                break;
-            case "ArrowDown":
-                if (direction.y === 0) direction = { x: 0, y: 1 }; // Prevent reversing
-                break;
-            case "ArrowLeft":
-                if (direction.x === 0) direction = { x: -1, y: 0 }; // Prevent reversing
-                break;
-            case "ArrowRight":
-                if (direction.x === 0) direction = { x: 1, y: 0 }; // Prevent reversing
-                break;
-        }
-    }
-});
+// Array of random messages
+const messages = [
+    "PUMP IT", "YOLO", "DEGEN MODE", "APE", 
+    "ALL IN", "STONKS", "HODL", "STOP JEETING MFER", 
+    "PUNISH THE PAPERHANDS"
+];
 
-function startGame() {
-    snake = [{ x: 5, y: 5 }];
-    direction = { x: 1, y: 0 }; // Start moving to the right
-    placeFood();
-    gameOver = false;
-    gameLoop(); // Start the game loop
-}
-
-function restartGame() {
-    startGame();
-}
-
-function gameLoop() {
-    if (gameOver) return;
-
-    draw();
-    setTimeout(gameLoop, 100); // Adjust game speed here
-}
-
-function placeFood() {
-    food = {
-        x: Math.floor(Math.random() * (canvas.width / 20)),
-        y: Math.floor(Math.random() * (canvas.height / 20))
-    };
-}
-
+// Draw the bull (snake)
 function drawBull(x, y) {
     ctx.drawImage(bullImage, x * 20, y * 20, 20, 20);
 }
 
+// Draw the bear (food)
 function drawBear(x, y) {
     ctx.drawImage(bearImage, x * 20, y * 20, 20, 20);
 }
 
-function collision(head) {
-    return snake.some(segment => segment.x === head.x && segment.y === head.y);
-}
-
+// Main draw function
 function draw() {
+    if (gameOver) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the snake (bulls)
-    snake.forEach(segment => {
+    snake.forEach((segment) => {
         drawBull(segment.x, segment.y);
     });
 
@@ -92,7 +60,9 @@ function draw() {
 
     // Check if snake eats food
     if (head.x === food.x && head.y === food.y) {
+        score++;
         placeFood();
+        showRandomMessage(); // Show a random message when eating a bear
     } else {
         snake.pop();
     }
@@ -100,10 +70,72 @@ function draw() {
     // Check for game over
     if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 || collision(head)) {
         gameOver = true;
-        alert("YOU'RE LIQUIDATED. TRY AGAIN!");
+        gameOverDisplay.style.display = "block"; // Show game over message
+        scoreDisplay.innerText = `Score: ${score}`; // Display the score
         return;
+    }
+
+    // Update score display
+    scoreDisplay.innerText = `Score: ${score}`;
+}
+
+function placeFood() {
+    food.x = Math.floor(Math.random() * (canvas.width / 20));
+    food.y = Math.floor(Math.random() * (canvas.height / 20));
+}
+
+function collision(head) {
+    return snake.slice(1).some((segment) => segment.x === head.x && segment.y === head.y);
+}
+
+function resetGame() {
+    snake = [{ x: 10, y: 10 }];
+    direction = { x: 0, y: 0 };
+    score = 0;
+    gameOver = false;
+    gameOverDisplay.style.display = "none"; // Hide game over message
+    messageDisplay.style.display = 'none'; // Hide random message
+    placeFood();
+}
+
+function showRandomMessage() {
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    messageDisplay.innerText = messages[randomIndex]; // Set random message
+    messageDisplay.style.display = 'block'; // Show the message
+    setTimeout(() => {
+        messageDisplay.style.display = 'none'; // Hide after 2 seconds
+    }, 2000);
+}
+
+function changeDirection(event) {
+    switch (event.key) {
+        case "ArrowUp":
+            if (direction.y === 0) {
+                direction = { x: 0, y: -1 };
+            }
+            break;
+        case "ArrowDown":
+            if (direction.y === 0) {
+                direction = { x: 0, y: 1 };
+            }
+            break;
+        case "ArrowLeft":
+            if (direction.x === 0) {
+                direction = { x: -1, y: 0 };
+            }
+            break;
+        case "ArrowRight":
+            if (direction.x === 0) {
+                direction = { x: 1, y: 0 };
+            }
+            break;
+        case "Space":
+            if (gameOver) {
+                resetGame(); // Reset the game if it's over
+            }
+            break;
     }
 }
 
-// Initialize the game
-startGame();
+document.addEventListener("keydown", changeDirection);
+setInterval(draw, 100);
