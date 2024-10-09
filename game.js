@@ -9,13 +9,13 @@ let gameOver = false;
 const scoreDisplay = document.getElementById("score");
 const gameOverDisplay = document.getElementById("gameOver");
 let message = "";
-let messagePosition = { x: 0, y: 0 };
-let bubbleTimer = null;
 
+// Load images
 const bullImage = new Image();
+bullImage.src = 'bull.png'; // Ensure the path is correct
+
 const bearImage = new Image();
-bullImage.src = 'bull.png'; // Path to the bull image
-bearImage.src = 'bear.png'; // Path to the bear image
+bearImage.src = 'bear.png'; // Ensure the path is correct
 
 document.addEventListener("keydown", (event) => {
     if (event.code === "Space") {
@@ -27,16 +27,16 @@ document.addEventListener("keydown", (event) => {
     } else if (!gameOver) {
         switch (event.code) {
             case "ArrowUp":
-                if (direction.y === 0) direction = { x: 0, y: -1 };
+                direction = { x: 0, y: -1 };
                 break;
             case "ArrowDown":
-                if (direction.y === 0) direction = { x: 0, y: 1 };
+                direction = { x: 0, y: 1 };
                 break;
             case "ArrowLeft":
-                if (direction.x === 0) direction = { x: -1, y: 0 };
+                direction = { x: -1, y: 0 };
                 break;
             case "ArrowRight":
-                if (direction.x === 0) direction = { x: 1, y: 0 };
+                direction = { x: 1, y: 0 };
                 break;
         }
     }
@@ -49,8 +49,6 @@ function startGame() {
     placeFood();
     gameOver = false;
     gameOverDisplay.style.display = "none";
-    message = ""; 
-    messagePosition = { x: 0, y: 0 }; 
     gameLoop();
 }
 
@@ -62,7 +60,7 @@ function gameLoop() {
     if (gameOver) return;
 
     draw();
-    setTimeout(gameLoop, 100); 
+    setTimeout(gameLoop, 100); // Adjust game speed here
 }
 
 function placeFood() {
@@ -86,20 +84,25 @@ function collision(head) {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
+    // Draw the canvas border
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 5;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeRect(0, 0, canvas.width, canvas.height); // Draw the canvas border
 
+    // Draw the snake (bulls)
     snake.forEach(segment => {
         drawBull(segment.x, segment.y);
     });
 
+    // Draw the food (bear)
     drawBear(food.x, food.y);
 
+    // Move the snake
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
     snake.unshift(head);
 
+    // Check if snake eats food
     if (head.x === food.x && head.y === food.y) {
         score++;
         placeFood();
@@ -108,6 +111,7 @@ function draw() {
         snake.pop();
     }
 
+    // Check for game over
     if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 || collision(head)) {
         gameOver = true;
         gameOverDisplay.innerText = "YOU'RE LIQUIDATED. TRY AGAIN!";
@@ -116,53 +120,52 @@ function draw() {
         return;
     }
 
+    // Update score display
     scoreDisplay.innerText = `Score: ${score}`;
-
-    if (message) {
-        drawMessage(messagePosition.x, messagePosition.y, message);
-    }
 }
 
-const messages = [
-    "PUMP IT",
-    "YOLO",
-    "DEGEN MODE",
-    "APE",
-    "ALL IN",
-    "STONKS",
-    "HODL",
-    "STOP JEETING MFER",
-    "PUNISH THE PAPERHANDS"
-];
-
+// Chat bubble settings
+const bubbleOffset = { x: 0, y: -25 };
 function showRandomMessage(x, y) {
+    const messages = [
+        "PUMP IT",
+        "YOLO",
+        "DEGEN MODE",
+        "APE",
+        "ALL IN",
+        "STONKS",
+        "HODL",
+        "STOP JEETING MFER",
+        "PUNISH THE PAPERHANDS"
+    ];
     message = messages[Math.floor(Math.random() * messages.length)];
-    messagePosition = { x: x, y: y };
-    bubbleTimer = setTimeout(() => {
-        message = ""; // Clear the message after some time
-    }, 2000); // Message lasts for 2 seconds
+    drawMessage(x * 20 + bubbleOffset.x, y * 20 + bubbleOffset.y, message);
 }
 
 function drawMessage(x, y, text) {
     const padding = 5;
     const borderRadius = 10;
 
+    // Calculate text dimensions
     const textWidth = ctx.measureText(text).width;
-    const textHeight = 20; 
+    const textHeight = 20; // Approximate height of the text
 
+    // Draw chat bubble background
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.moveTo((x) * 20 + borderRadius, (y) * 20);
-    ctx.lineTo((x) * 20 + textWidth + padding + borderRadius, (y) * 20);
-    ctx.quadraticCurveTo((x) * 20 + textWidth + padding + borderRadius, (y) * 20 + borderRadius, (x) * 20 + textWidth + padding + borderRadius, (y) * 20 + textHeight + borderRadius);
-    ctx.lineTo((x) * 20 + borderRadius, (y) * 20 + textHeight + borderRadius);
-    ctx.quadraticCurveTo((x) * 20, (y) * 20 + textHeight + borderRadius, (x) * 20, (y) * 20 + textHeight);
-    ctx.lineTo((x) * 20, (y) * 20);
+    ctx.moveTo(x + borderRadius, y);
+    ctx.lineTo(x + textWidth + padding + borderRadius, y);
+    ctx.quadraticCurveTo(x + textWidth + padding + borderRadius, y + borderRadius, x + textWidth + padding + borderRadius, y + textHeight + borderRadius);
+    ctx.lineTo(x + borderRadius, y + textHeight + borderRadius);
+    ctx.quadraticCurveTo(x, y + textHeight + borderRadius, x, y + textHeight);
+    ctx.lineTo(x, y);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = "white"; 
-    ctx.fillText(text, (x) * 20 + padding, (y) * 20 + textHeight - 5);
+    // Draw message text
+    ctx.fillStyle = "white"; // Message text color
+    ctx.fillText(text, x + padding, y + textHeight - 5);
 }
 
+// Initialize the game
 startGame();
