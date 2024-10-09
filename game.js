@@ -4,7 +4,6 @@ const ctx = canvas.getContext("2d");
 let snake = [{ x: 5, y: 5 }];
 let food = {};
 let direction = { x: 1, y: 0 }; // Start moving to the right
-let score = 0;
 let gameOver = false;
 
 const bullImage = new Image();
@@ -39,12 +38,10 @@ document.addEventListener("keydown", (event) => {
 });
 
 function startGame() {
-    score = 0;
     snake = [{ x: 5, y: 5 }];
     direction = { x: 1, y: 0 }; // Start moving to the right
     placeFood();
     gameOver = false;
-    document.getElementById("gameMessage").style.display = "none";
     gameLoop(); // Start the game loop
 }
 
@@ -95,7 +92,6 @@ function draw() {
 
     // Check if snake eats food
     if (head.x === food.x && head.y === food.y) {
-        score++;
         placeFood();
     } else {
         snake.pop();
@@ -104,14 +100,9 @@ function draw() {
     // Check for game over
     if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 || collision(head)) {
         gameOver = true;
-        const messageDiv = document.getElementById("gameMessage");
-        messageDiv.style.display = "block";
-        messageDiv.innerText = `YOU'RE LIQUIDATED. TRY AGAIN! Score: ${score}`;
+        alert("YOU'RE LIQUIDATED. TRY AGAIN!");
         return;
     }
-
-    // Update score display
-    document.getElementById("score").innerText = `Score: ${score}`;
 }
 
 // Initialize the game
